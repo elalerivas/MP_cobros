@@ -107,7 +107,8 @@ def pagos():
             else:
                 r["acumulado"] = None
 
-        return jsonify({"rows": rows, "total": acum})
+        #return jsonify({"rows": rows, "total": acum})
+        return jsonify({"rows": rows, "total": acum, "debug_total_traidos": len(results)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
