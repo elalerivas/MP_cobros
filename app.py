@@ -58,11 +58,19 @@ def pagos():
             except ValueError:
                 pass
 
-        results = []
+                results = []
         offset  = 0
         limit   = 100
         while True:
-            resp  = sdk.payment().search({"offset": offset, "limit": limit, "sort": "date_created", "criteria": "desc"})
+            resp  = sdk.payment().search({
+                "offset":     offset,
+                "limit":      limit,
+                "sort":       "date_created",
+                "criteria":   "desc",
+                "range":      "date_created",
+                "begin_date": "NOW-1YEARS",
+                "end_date":   "NOW",
+            })
             data  = resp.get("response", {})
             items = data.get("results", [])
             if not items:
@@ -72,7 +80,6 @@ def pagos():
             if offset + limit >= paging.get("total", 0):
                 break
             offset += limit
-
         rows = []
         for p in results:
             op = p.get("operation_type", "")
