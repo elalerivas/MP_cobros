@@ -1,4 +1,4 @@
-const CACHE = "cobros-mp-v1";
+const CACHE = "cobros-mp-v2";
 const ASSETS = ["/", "/manifest.json"];
 
 self.addEventListener("install", e => {
