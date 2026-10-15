@@ -1,89 +1,328 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard MP</title>
+<title>Cobros MP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cobros MP">
+<meta name="theme-color" content="#009ee3">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-         background: #f0f4f8; color: #1a202c; min-height: 100vh; }
+/* ── Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #0f1117;
+  --bg2:       #1a1d27;
+  --bg3:       #22263a;
+  --border:    #2e3350;
+  --fg:        #e8eaf0;
+  --fg2:       #8b92b0;
+  --accent:    #009ee3;
+  --accent-dk: #007ab8;
+  --accent-gl: rgba(0,158,227,.12);
+  --green:     #34d399;
+  --green-gl:  rgba(52,211,153,.1);
+  --red:       #f87171;
+  --r:         12px;
+  --r-sm:      8px;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:        #f0f4f8;
+    --bg2:       #ffffff;
+    --bg3:       #e8edf5;
+    --border:    #d1d9e6;
+    --fg:        #1a202c;
+    --fg2:       #5a6480;
+    --accent:    #0082bf;
+    --accent-dk: #006494;
+    --accent-gl: rgba(0,130,191,.10);
+    --green:     #059669;
+    --green-gl:  rgba(5,150,105,.08);
+    --red:       #dc2626;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:        #f0f4f8;
+  --bg2:       #ffffff;
+  --bg3:       #e8edf5;
+  --border:    #d1d9e6;
+  --fg:        #1a202c;
+  --fg2:       #5a6480;
+  --accent:    #0082bf;
+  --accent-dk: #006494;
+  --accent-gl: rgba(0,130,191,.10);
+  --green:     #059669;
+  --green-gl:  rgba(5,150,105,.08);
+  --red:       #dc2626;
+  color-scheme: light;
+}
 
-  header { background: #009ee3; color: white; padding: 14px 16px;
-           display: flex; align-items: center; gap: 10px; }
-  header h1 { font-size: 1.1rem; flex: 1; }
-  #btn-config { background: rgba(255,255,255,0.2); border: none; color: white;
-                border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.85rem; }
+/* ── Reset / base ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  padding-left:  max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
 
-  /* CONFIG PANEL */
-  #panel-config { display: none; background: white; padding: 16px;
-                  border-bottom: 1px solid #e2e8f0; }
-  #panel-config label { display: block; font-size: 0.8rem; color: #718096;
-                        margin-bottom: 3px; margin-top: 10px; }
-  #panel-config input { width: 100%; border: 1px solid #cbd5e0; border-radius: 6px;
-                        padding: 8px 10px; font-size: 0.95rem; }
-  #panel-config input:first-of-type { margin-top: 0; }
-  #btn-guardar { margin-top: 12px; background: #009ee3; color: white; border: none;
-                 border-radius: 6px; padding: 9px 18px; cursor: pointer;
-                 font-size: 0.9rem; width: 100%; }
+/* ── Header ─────────────────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+}
+#titulo-header {
+  flex: 1;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -.01em;
+}
+#btn-config {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--fg2);
+  border-radius: var(--r-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background .15s, color .15s;
+}
+#btn-config:hover { background: var(--border); color: var(--fg); }
 
-  /* FILTROS */
-  #filtros { background: white; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
-  .fila-filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .fila-filtros label { font-size: 0.75rem; color: #718096; display: block;
-                        margin-bottom: 2px; }
-  .fila-filtros input, .fila-filtros select {
-    border: 1px solid #cbd5e0; border-radius: 6px;
-    padding: 7px 8px; font-size: 0.85rem; width: 100%; }
-  .f-fecha { flex: 1; min-width: 130px; }
-  .f-monto { flex: 1; min-width: 110px; }
-  .f-tipo  { flex: 1; min-width: 130px; }
-  #btn-buscar { background: #009ee3; color: white; border: none;
-                border-radius: 6px; padding: 9px 20px; cursor: pointer;
-                font-size: 0.9rem; white-space: nowrap; align-self: flex-end; }
-  #btn-excel  { background: #276749; color: white; border: none;
-                border-radius: 6px; padding: 9px 14px; cursor: pointer;
-                font-size: 0.9rem; white-space: nowrap; align-self: flex-end; }
+/* ── Config panel ───────────────────────────────────────────────────── */
+#panel-config {
+  display: none;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0 20px;
+}
+#panel-config label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fg2);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+#panel-config label:first-of-type { margin-top: 0; }
+#panel-config input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+#panel-config input:focus { border-color: var(--accent); }
+#btn-guardar {
+  margin-top: 16px;
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 13px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+#btn-guardar:hover { background: var(--accent-dk); }
 
-  /* STATS */
-  #stats { display: flex; gap: 10px; padding: 12px 16px; flex-wrap: wrap; }
-  .stat-card { background: white; border-radius: 8px; padding: 10px 14px;
-               flex: 1; min-width: 130px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .stat-card .label { font-size: 0.7rem; color: #718096; text-transform: uppercase;
-                      letter-spacing: .04em; }
-  .stat-card .value { font-size: 1.25rem; font-weight: 700; color: #009ee3;
-                      margin-top: 2px; }
+/* ── Filtros ─────────────────────────────────────────────────────────── */
+#filtros {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+.fila-filtros {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.fila-filtros label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg2);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.fila-filtros input,
+.fila-filtros select {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 11px 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.fila-filtros input:focus,
+.fila-filtros select:focus { border-color: var(--accent); }
+.f-fecha { flex: 1; min-width: 140px; }
+.f-monto { flex: 1; min-width: 120px; }
+.f-tipo  { flex: 1; min-width: 140px; }
 
-  /* TABLA */
-  #tabla-wrap { overflow-x: auto; padding: 0 16px 80px; }
-  table { width: 100%; border-collapse: collapse; background: white;
-          border-radius: 8px; overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
-  th { background: #edf2f7; padding: 10px 12px; text-align: left;
-       font-weight: 600; color: #4a5568; white-space: nowrap; }
-  td { padding: 9px 12px; border-top: 1px solid #f7fafc; }
-  tr:hover td { background: #f7fafc; }
-  .monto  { text-align: right; font-variant-numeric: tabular-nums; }
-  .acum   { text-align: right; font-variant-numeric: tabular-nums;
-            color: #276749; font-weight: 600; }
-  .estado-approved { color: #276749; font-weight: 600; }
-  .estado-pending  { color: #b7791f; }
-  .estado-rejected { color: #c53030; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+#btn-buscar {
+  flex: 1;
+  min-width: 120px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 13px 20px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+#btn-buscar:hover { background: var(--accent-dk); }
+#btn-excel {
+  background: var(--green-gl);
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: var(--r-sm);
+  padding: 13px 18px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+#btn-excel:hover { background: var(--green); color: #fff; }
 
-  #msg { text-align: center; padding: 40px 16px; color: #718096; font-size: 0.9rem; }
+/* ── Stats ───────────────────────────────────────────────────────────── */
+#stats {
+  display: flex;
+  gap: 10px;
+  padding: 14px 0;
+  flex-wrap: wrap;
+}
+.stat-card {
+  flex: 1;
+  min-width: 130px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+}
+.stat-card .slabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--fg2);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.stat-card .svalue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
 
-  /* Toast */
-  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-           background: #1a202c; color: white; padding: 10px 20px;
-           border-radius: 20px; font-size: 0.85rem; opacity: 0;
-           transition: opacity .3s; pointer-events: none; z-index: 999; }
-  #toast.show { opacity: 1; }
+/* ── Tabla ───────────────────────────────────────────────────────────── */
+#tabla-wrap {
+  overflow-x: auto;
+  padding-bottom: 80px;
+}
+#msg {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--fg2);
+  font-size: 0.9rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  font-size: 0.87rem;
+}
+th {
+  background: var(--bg3);
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg2);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 11px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+tr:hover td { background: var(--accent-gl); }
+.col-id { color: var(--fg2); font-size: 0.78rem; }
+.col-monto { text-align: right; font-weight: 500; }
+.col-acum  { text-align: right; font-weight: 700; color: var(--green); }
+
+/* ── Toast ───────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--fg);
+  color: var(--bg);
+  padding: 11px 22px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; }
 </style>
-</head>
-<body>
 
+<!-- ── Markup ─────────────────────────────────────────────────────────── -->
 <header>
-  <h1 id="titulo-header">Dashboard MP</h1>
+  <h1 id="titulo-header">Cobros MP</h1>
   <button id="btn-config">⚙ Config</button>
 </header>
 
@@ -91,8 +330,8 @@
   <label>Nombre del dashboard</label>
   <input id="cfg-nombre" type="text" placeholder="Ej: Cooperadora 2026">
   <label>Access Token de Mercado Pago</label>
-  <input id="cfg-token" type="password" placeholder="APP_USR-...">
-  <button id="btn-guardar">💾 Guardar</button>
+  <input id="cfg-token" type="password" placeholder="APP_USR-…">
+  <button id="btn-guardar">Guardar</button>
 </div>
 
 <div id="filtros">
@@ -117,19 +356,21 @@
         <option value="all">Todos</option>
       </select>
     </div>
+  </div>
+  <div class="btn-row">
     <button id="btn-buscar">🔍 Buscar</button>
-    <button id="btn-excel">📥 Excel</button>
+    <button id="btn-excel">📥 Exportar Excel</button>
   </div>
 </div>
 
 <div id="stats">
   <div class="stat-card">
-    <div class="label">Registros</div>
-    <div class="value" id="st-registros">—</div>
+    <div class="slabel">Registros</div>
+    <div class="svalue" id="st-registros">—</div>
   </div>
   <div class="stat-card">
-    <div class="label">Total aprobado</div>
-    <div class="value" id="st-total">—</div>
+    <div class="slabel">Total aprobado</div>
+    <div class="svalue" id="st-total">—</div>
   </div>
 </div>
 
@@ -140,8 +381,8 @@
       <tr>
         <th>Fecha</th>
         <th>ID</th>
-        <th class="monto">Monto</th>
-        <th class="acum">Acumulado</th>
+        <th class="col-monto">Monto</th>
+        <th class="col-acum">Acumulado</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -151,28 +392,28 @@
 <div id="toast"></div>
 
 <script>
-// ── Storage ──────────────────────────────────────────────────────────────
+// ── Storage ──────────────────────────────────────────────────────────
 function lsGet(k){ try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
-// ── Inicializar ───────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────
 const hoy = new Date().toISOString().slice(0,10);
 document.getElementById("f-desde").value = hoy;
 document.getElementById("f-hasta").value = hoy;
 
-const nombre = lsGet("mp_nombre") || "Dashboard MP";
+const nombre = lsGet("mp_nombre") || "Cobros MP";
 document.getElementById("titulo-header").textContent = nombre;
 document.title = nombre;
 document.getElementById("cfg-nombre").value = nombre;
 document.getElementById("cfg-token").value  = lsGet("mp_token");
 
-// ── Config panel ──────────────────────────────────────────────────────────
+// ── Config panel ──────────────────────────────────────────────────────
 document.getElementById("btn-config").onclick = () => {
   const p = document.getElementById("panel-config");
   p.style.display = p.style.display === "none" ? "block" : "none";
 };
 document.getElementById("btn-guardar").onclick = () => {
-  const n = document.getElementById("cfg-nombre").value.trim() || "Dashboard MP";
+  const n = document.getElementById("cfg-nombre").value.trim() || "Cobros MP";
   const t = document.getElementById("cfg-token").value.trim();
   lsSet("mp_nombre", n);
   lsSet("mp_token",  t);
@@ -182,9 +423,8 @@ document.getElementById("btn-guardar").onclick = () => {
   toast("✅ Guardado");
 };
 
-// ── Buscar ────────────────────────────────────────────────────────────────
+// ── Buscar ────────────────────────────────────────────────────────────
 let datosActuales = [];
-
 document.getElementById("btn-buscar").onclick = buscar;
 
 async function buscar(){
@@ -196,8 +436,9 @@ async function buscar(){
   const monto = document.getElementById("f-monto").value;
   const tipo  = document.getElementById("f-tipo").value;
 
-  document.getElementById("msg").textContent = "Consultando...";
-  document.getElementById("msg").style.display = "block";
+  const msg = document.getElementById("msg");
+  msg.textContent = "Consultando…";
+  msg.style.display = "block";
   document.getElementById("tabla").style.display = "none";
   document.getElementById("st-registros").textContent = "—";
   document.getElementById("st-total").textContent = "—";
@@ -208,16 +449,23 @@ async function buscar(){
   try {
     const res  = await fetch("/api/pagos?" + params);
     const data = await res.json();
-    if(data.error){ toast("❌ " + data.error); document.getElementById("msg").textContent = "Error: " + data.error; return; }
+    if(data.error){
+      toast("❌ " + data.error);
+      msg.textContent = "Error: " + data.error;
+      return;
+    }
     datosActuales = data.rows;
     renderTabla(data.rows, data.total);
   } catch(e) {
     toast("❌ Error de conexión");
-    document.getElementById("msg").textContent = "Error de conexión.";
+    msg.textContent = "Error de conexión.";
   }
 }
 
-function fmt(n){ return n == null ? "—" : "$ " + Math.round(n).toLocaleString("es-AR"); }
+function fmt(n){
+  if(n == null) return "—";
+  return "$ " + Math.round(n).toLocaleString("es-AR");
+}
 
 function renderTabla(rows, total){
   const tbody = document.getElementById("tbody");
@@ -237,9 +485,9 @@ function renderTabla(rows, total){
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${r.fecha}</td>
-      <td style="font-size:0.8rem;color:#718096">${r.id}</td>
-      <td class="monto">${fmt(r.monto)}</td>
-      <td class="acum">${r.acumulado != null ? fmt(r.acumulado) : "—"}</td>
+      <td class="col-id">${r.id}</td>
+      <td class="col-monto">${fmt(r.monto)}</td>
+      <td class="col-acum">${r.acumulado != null ? fmt(r.acumulado) : "—"}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -248,7 +496,7 @@ function renderTabla(rows, total){
   document.getElementById("tabla").style.display = "table";
 }
 
-// ── Excel ─────────────────────────────────────────────────────────────────
+// ── Excel ─────────────────────────────────────────────────────────────
 document.getElementById("btn-excel").onclick = exportarExcel;
 
 function exportarExcel(){
@@ -261,13 +509,18 @@ function exportarExcel(){
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement("a");
   a.href = url;
-  a.download = (lsGet("mp_nombre")||"pagos") + "_" + new Date().toISOString().slice(0,10) + ".csv";
+  a.download = (lsGet("mp_nombre")||"cobros") + "_" + new Date().toISOString().slice(0,10) + ".csv";
   a.click();
   URL.revokeObjectURL(url);
   toast("✅ Archivo descargado");
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────
+// ── Service Worker ────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg){
   const el = document.getElementById("toast");
@@ -277,5 +530,3 @@ function toast(msg){
   toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
 }
 </script>
-</body>
-</html>
