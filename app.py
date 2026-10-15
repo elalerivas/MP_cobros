@@ -18,15 +18,6 @@ def fmt_date(s):
     except:
         return s or "-"
 
-def to_ar_date(s):
-    try:
-        dt = datetime.fromisoformat(s)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(AR).date()
-    except:
-        return None
-
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
@@ -45,12 +36,6 @@ def pagos():
     try:
         sdk = mercadopago.SDK(token)
 
-        try:
-            desde = datetime.strptime(desde_str, "%Y-%m-%d").date() if desde_str else None
-            hasta = datetime.strptime(hasta_str, "%Y-%m-%d").date() if hasta_str else None
-        except ValueError:
-            desde = hasta = None
-
         monto_f = None
         if monto_str:
             try:
@@ -58,18 +43,25 @@ def pagos():
             except ValueError:
                 pass
 
+        # Traer pagos del último año
+        # Fechas en formato ISO con zona horaria AR
+        desde_dt = datetime.strptime(desde_str, "%Y-%m-%d") if desde_str else (datetime.now(AR) - timedelta(days=30))
+        hasta_dt = datetime.strptime(hasta_str, "%Y-%m-%d") if hasta_str else datetime.now(AR)
+
+        begin_date = desde_dt.strftime("%Y-%m-%dT00:00:00.000-03:00")
+        end_date   = hasta_dt.strftime("%Y-%m-%dT23:59:59.999-03:00")
+
         all_items = []
         offset = 0
         limit  = 100
         while True:
-            resp = sdk.payment().search({
-                "offset":     offset,
-                "limit":      limit,
+            resp = sdk.payment().search(filters={
                 "sort":       "date_created",
                 "criteria":   "desc",
-                "range":      "date_created",
-                "begin_date": "NOW-1YEARS",
-                "end_date":   "NOW",
+                "limit":      limit,
+                "offset":     offset,
+                "begin_date": begin_date,
+                "end_date":   end_date,
             })
             data  = resp.get("response", {})
             items = data.get("results", [])
@@ -81,18 +73,13 @@ def pagos():
                 break
             offset += limit
 
+        # Filtrar
         rows = []
         for p in all_items:
             op = p.get("operation_type", "")
             if tipo == "received" and op == "money_transfer":
                 continue
             if tipo == "sent" and op != "money_transfer":
-                continue
-
-            fecha_ar = to_ar_date(p.get("date_created", ""))
-            if desde and fecha_ar and fecha_ar < desde:
-                continue
-            if hasta and fecha_ar and fecha_ar > hasta:
                 continue
 
             amt = float(p.get("transaction_amount") or 0)
@@ -115,7 +102,7 @@ def pagos():
             else:
                 r["acumulado"] = None
 
-        return jsonify({"rows": rows, "total": acum, "debug_total_traidos": len(all_items)})
+        return jsonify({"rows": rows, "total": acum})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
