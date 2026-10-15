@@ -58,49 +58,46 @@ def pagos():
             except ValueError:
                 pass
 
-        def fetch_endpoint(endpoint):
-            results = []
-            offset  = 0
-            limit   = 100
-            while True:
-                resp = sdk.payment().search({
-                    "offset": offset,
-                    "limit":  limit,
-                    **({"operation_type": "regular_payment"} if endpoint == "received" else
-                       {"operation_type": "money_transfer"}  if endpoint == "sent"     else {})
-                })
-                data  = resp.get("response", {})
-                items = data.get("results", [])
-                if not items:
-                    break
-                results.extend(items)
-                paging = data.get("paging", {})
-                if offset + limit >= paging.get("total", 0):
-                    break
-                offset += limit
-            return results
-
-        if tipo == "all":
-            items = fetch_endpoint("received") + fetch_endpoint("sent")
-            items.sort(key=lambda p: p.get("date_created",""), reverse=False)
-        else:
-            items = fetch_endpoint(tipo)
+        results = []
+        offset  = 0
+        limit   = 100
+        while True:
+            resp  = sdk.payment().search({"offset": offset, "limit": limit, "sort": "date_created", "criteria": "desc"})
+            data  = resp.get("response", {})
+            items = data.get("results", [])
+            if not items:
+                break
+            results.extend(items)
+            paging = data.get("paging", {})
+            if offset + limit >= paging.get("total", 0):
+                break
+            offset += limit
 
         rows = []
-        for p in items:
-            fecha_ar = to_ar_date(p.get("date_created",""))
+        for p in results:
+            op = p.get("operation_type", "")
+            if tipo == "received" and op == "money_transfer":
+                continue
+            if tipo == "sent" and op != "money_transfer":
+                continue
+
+            fecha_ar = to_ar_date(p.get("date_created", ""))
             if desde and fecha_ar and fecha_ar < desde:
                 continue
             if hasta and fecha_ar and fecha_ar > hasta:
                 continue
+
             amt = float(p.get("transaction_amount") or 0)
             if monto_f is not None and abs(amt - monto_f) > 0.01:
                 continue
+
             rows.append({
-                "fecha":  fmt_date(p.get("date_created","")),
+                "fecha":  fmt_date(p.get("date_created", "")),
                 "monto":  amt,
                 "estado": p.get("status", "-"),
             })
+
+        rows.sort(key=lambda r: r["fecha"])
 
         acum = 0.0
         for r in rows:
