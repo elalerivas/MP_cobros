@@ -1,11 +1,5 @@
 <title>Cobros MP</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cobros MP">
-<meta name="theme-color" content="#009ee3">
-<link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 
 <style>
@@ -513,11 +507,6 @@ function exportarExcel(){
   a.click();
   URL.revokeObjectURL(url);
   toast("✅ Archivo descargado");
-}
-
-// ── Service Worker ────────────────────────────────────────────────────
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────
