@@ -100,8 +100,9 @@ def pagos():
                 continue
 
             rows.append({
-                "fecha":  fmt_date(p.get("date_created", "")),
-                "monto":  amt,
+                "id":    p.get("id", "-"),
+                "fecha": fmt_date(p.get("date_created", "")),
+                "monto": amt,
                 "estado": p.get("status", "-"),
             })
 
