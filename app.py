@@ -59,19 +59,16 @@ def pagos():
 
         all_items = []
         offset = 0
-        limit  = 100
-        first_resp_debug = None
+        limit  = 200
         while True:
             resp = sdk.payment().search(filters={
-                "sort":         "date_created",
-                "criteria":     "desc",
-                "limit":        limit,
-                "offset":       offset,
-                "begin_date":   begin_date,
-                "end_date":     end_date,
+                "sort":       "date_created",
+                "criteria":   "desc",
+                "limit":      limit,
+                "offset":     offset,
+                "begin_date": begin_date,
+                "end_date":   end_date,
             })
-            if first_resp_debug is None:
-                first_resp_debug = {"status": resp.get("status"), "response_keys": list(resp.get("response", {}).keys()), "paging": resp.get("response", {}).get("paging")}
             data  = resp.get("response", {})
             items = data.get("results", [])
             if not items:
@@ -83,14 +80,19 @@ def pagos():
             offset += limit
 
         # Filtrar
+        def is_received(p):
+            col        = str(p.get("collector_id", ""))
+            root_payer = str(p.get("payer_id", ""))
+            return col == user_id and root_payer != user_id
+
+        def is_sent(p):
+            return str(p.get("payer_id", "")) == user_id
+
         rows = []
         for p in all_items:
-            # Filtrar por tipo usando collector_id / payer_id
-            collector = str(p.get("collector_id", ""))
-            payer     = str(p.get("payer_id", "") or p.get("payer", {}).get("id", ""))
-            if tipo == "received" and collector != user_id:
+            if tipo == "received" and not is_received(p):
                 continue
-            if tipo == "sent" and payer != user_id:
+            if tipo == "sent" and not is_sent(p):
                 continue
 
             amt = float(p.get("transaction_amount") or 0)
@@ -113,7 +115,7 @@ def pagos():
             else:
                 r["acumulado"] = None
 
-        return jsonify({"rows": rows, "total": acum, "debug": {"user_id": user_id, "begin_date": begin_date, "end_date": end_date, "total_traidos": len(all_items), "first_resp": first_resp_debug}})
+        return jsonify({"rows": rows, "total": acum})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
