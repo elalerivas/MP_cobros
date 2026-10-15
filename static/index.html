@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cobros MP">
+<meta name="theme-color" content="#009ee3">
+<link rel="manifest" href="/manifest.json">
 <title>Dashboard MP</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -66,9 +72,6 @@
   .monto  { text-align: right; font-variant-numeric: tabular-nums; }
   .acum   { text-align: right; font-variant-numeric: tabular-nums;
             color: #276749; font-weight: 600; }
-  .estado-approved { color: #276749; font-weight: 600; }
-  .estado-pending  { color: #b7791f; }
-  .estado-rejected { color: #c53030; }
 
   #msg { text-align: center; padding: 40px 16px; color: #718096; font-size: 0.9rem; }
 
@@ -217,7 +220,7 @@ async function buscar(){
   }
 }
 
-function fmt(n){ return n == null ? "—" : "$ " + Math.round(n).toLocaleString("es-AR"); }
+function fmt(n){ return n == null ? "—" : "$ " + Math.round(n).toLocaleString("es-AR"); }
 
 function renderTabla(rows, total){
   const tbody = document.getElementById("tbody");
