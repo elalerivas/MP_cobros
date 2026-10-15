@@ -58,11 +58,11 @@ def pagos():
             except ValueError:
                 pass
 
-                results = []
-        offset  = 0
-        limit   = 100
+        all_items = []
+        offset = 0
+        limit  = 100
         while True:
-            resp  = sdk.payment().search({
+            resp = sdk.payment().search({
                 "offset":     offset,
                 "limit":      limit,
                 "sort":       "date_created",
@@ -75,13 +75,14 @@ def pagos():
             items = data.get("results", [])
             if not items:
                 break
-            results.extend(items)
+            all_items.extend(items)
             paging = data.get("paging", {})
             if offset + limit >= paging.get("total", 0):
                 break
             offset += limit
+
         rows = []
-        for p in results:
+        for p in all_items:
             op = p.get("operation_type", "")
             if tipo == "received" and op == "money_transfer":
                 continue
@@ -114,8 +115,7 @@ def pagos():
             else:
                 r["acumulado"] = None
 
-        #return jsonify({"rows": rows, "total": acum})
-        return jsonify({"rows": rows, "total": acum, "debug_total_traidos": len(results)})
+        return jsonify({"rows": rows, "total": acum, "debug_total_traidos": len(all_items)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
