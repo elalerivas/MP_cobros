@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,79 +7,112 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Cobros MP">
-<meta name="theme-color" content="#009ee3">
+<meta name="theme-color" content="#0077a8">
 <link rel="manifest" href="/manifest.json">
 <title>Dashboard MP</title>
 <style>
+  /* ── Tokens ── */
+  :root {
+    --bg:      #eef2f6;
+    --bg2:     #ffffff;
+    --bg3:     #e2e8f0;
+    --border:  #cbd5e0;
+    --fg:      #1a202c;
+    --fg2:     #64748b;
+    --accent:  #0077a8;
+    --accent2: #005f87;
+    --green:   #276749;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg:      #0f1117;
+    --bg2:     #1a1d27;
+    --bg3:     #22263a;
+    --border:  #2e3350;
+    --fg:      #e8eaf0;
+    --fg2:     #8b92b0;
+    --accent:  #38b2d8;
+    --accent2: #009ee3;
+    --green:   #4ade80;
+    color-scheme: dark;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-         background: #f0f4f8; color: #1a202c; min-height: 100vh; }
+         background: var(--bg); color: var(--fg); min-height: 100vh;
+         transition: background .2s, color .2s; }
 
-  header { background: #009ee3; color: white; padding: 14px 16px;
+  /* HEADER */
+  header { background: var(--accent); color: white; padding: 14px 16px;
            display: flex; align-items: center; gap: 10px; }
   header h1 { font-size: 1.1rem; flex: 1; }
-  #btn-config { background: rgba(255,255,255,0.2); border: none; color: white;
-                border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.85rem; }
+  .hbtn { background: rgba(255,255,255,0.18); border: none; color: white;
+          border-radius: 6px; padding: 6px 10px; cursor: pointer;
+          font-size: 0.85rem; }
 
   /* CONFIG PANEL */
-  #panel-config { display: none; background: white; padding: 16px;
-                  border-bottom: 1px solid #e2e8f0; }
-  #panel-config label { display: block; font-size: 0.8rem; color: #718096;
+  #panel-config { display: none; background: var(--bg2); padding: 16px;
+                  border-bottom: 1px solid var(--border); }
+  #panel-config label { display: block; font-size: 0.8rem; color: var(--fg2);
                         margin-bottom: 3px; margin-top: 10px; }
-  #panel-config input { width: 100%; border: 1px solid #cbd5e0; border-radius: 6px;
-                        padding: 8px 10px; font-size: 0.95rem; }
-  #panel-config input:first-of-type { margin-top: 0; }
-  #btn-guardar { margin-top: 12px; background: #009ee3; color: white; border: none;
-                 border-radius: 6px; padding: 9px 18px; cursor: pointer;
-                 font-size: 0.9rem; width: 100%; }
+  #panel-config input { width: 100%; border: 1px solid var(--border);
+                        border-radius: 6px; padding: 8px 10px; font-size: 0.95rem;
+                        background: var(--bg); color: var(--fg); }
+  #btn-guardar { margin-top: 12px; background: var(--accent); color: white;
+                 border: none; border-radius: 6px; padding: 9px 18px;
+                 cursor: pointer; font-size: 0.9rem; width: 100%; }
 
   /* FILTROS */
-  #filtros { background: white; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
+  #filtros { background: var(--bg2); padding: 12px 16px;
+             border-bottom: 1px solid var(--border); }
   .fila-filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .fila-filtros label { font-size: 0.75rem; color: #718096; display: block;
+  .fila-filtros label { font-size: 0.75rem; color: var(--fg2); display: block;
                         margin-bottom: 2px; }
   .fila-filtros input, .fila-filtros select {
-    border: 1px solid #cbd5e0; border-radius: 6px;
-    padding: 7px 8px; font-size: 0.85rem; width: 100%; }
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 8px; font-size: 0.85rem; width: 100%;
+    background: var(--bg); color: var(--fg); }
   .f-fecha { flex: 1; min-width: 130px; }
   .f-monto { flex: 1; min-width: 110px; }
   .f-tipo  { flex: 1; min-width: 130px; }
-  #btn-buscar { background: #009ee3; color: white; border: none;
+  #btn-buscar { background: var(--accent); color: white; border: none;
                 border-radius: 6px; padding: 9px 20px; cursor: pointer;
                 font-size: 0.9rem; white-space: nowrap; align-self: flex-end; }
-  #btn-excel  { background: #276749; color: white; border: none;
+  #btn-excel  { background: var(--green); color: white; border: none;
                 border-radius: 6px; padding: 9px 14px; cursor: pointer;
                 font-size: 0.9rem; white-space: nowrap; align-self: flex-end; }
 
   /* STATS */
   #stats { display: flex; gap: 10px; padding: 12px 16px; flex-wrap: wrap; }
-  .stat-card { background: white; border-radius: 8px; padding: 10px 14px;
-               flex: 1; min-width: 130px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .stat-card .label { font-size: 0.7rem; color: #718096; text-transform: uppercase;
-                      letter-spacing: .04em; }
-  .stat-card .value { font-size: 1.25rem; font-weight: 700; color: #009ee3;
+  .stat-card { background: var(--bg2); border: 1px solid var(--border);
+               border-radius: 8px; padding: 10px 14px;
+               flex: 1; min-width: 130px; }
+  .stat-card .label { font-size: 0.7rem; color: var(--fg2);
+                      text-transform: uppercase; letter-spacing: .04em; }
+  .stat-card .value { font-size: 1.25rem; font-weight: 700; color: var(--accent);
                       margin-top: 2px; }
 
   /* TABLA */
   #tabla-wrap { overflow-x: auto; padding: 0 16px 80px; }
-  table { width: 100%; border-collapse: collapse; background: white;
+  table { width: 100%; border-collapse: collapse; background: var(--bg2);
           border-radius: 8px; overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
-  th { background: #edf2f7; padding: 10px 12px; text-align: left;
-       font-weight: 600; color: #4a5568; white-space: nowrap; }
-  td { padding: 9px 12px; border-top: 1px solid #f7fafc; }
-  tr:hover td { background: #f7fafc; }
-  .monto  { text-align: right; font-variant-numeric: tabular-nums; }
-  .acum   { text-align: right; font-variant-numeric: tabular-nums;
-            color: #276749; font-weight: 600; }
+          border: 1px solid var(--border); font-size: 0.85rem; }
+  th { background: var(--bg3); padding: 10px 12px; text-align: left;
+       font-weight: 600; color: var(--fg2); white-space: nowrap;
+       border-bottom: 1px solid var(--border); }
+  td { padding: 9px 12px; border-top: 1px solid var(--border); color: var(--fg); }
+  tr:hover td { background: var(--bg3); }
+  .monto { text-align: right; font-variant-numeric: tabular-nums; }
+  .acum  { text-align: right; font-variant-numeric: tabular-nums;
+           color: var(--green); font-weight: 600; }
 
-  #msg { text-align: center; padding: 40px 16px; color: #718096; font-size: 0.9rem; }
+  #msg { text-align: center; padding: 40px 16px; color: var(--fg2); font-size: 0.9rem; }
 
-  /* Toast */
   #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-           background: #1a202c; color: white; padding: 10px 20px;
+           background: var(--fg); color: var(--bg); padding: 10px 20px;
            border-radius: 20px; font-size: 0.85rem; opacity: 0;
-           transition: opacity .3s; pointer-events: none; z-index: 999; }
+           transition: opacity .3s; pointer-events: none; z-index: 999;
+           white-space: nowrap; }
   #toast.show { opacity: 1; }
 </style>
 </head>
@@ -87,7 +120,8 @@
 
 <header>
   <h1 id="titulo-header">Dashboard MP</h1>
-  <button id="btn-config">⚙ Config</button>
+  <button class="hbtn" id="btn-tema" title="Modo oscuro">🌙</button>
+  <button class="hbtn" id="btn-config">⚙ Config</button>
 </header>
 
 <div id="panel-config">
@@ -154,11 +188,27 @@
 <div id="toast"></div>
 
 <script>
-// ── Storage ──────────────────────────────────────────────────────────────
 function lsGet(k){ try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
-// ── Inicializar ───────────────────────────────────────────────────────────
+// ── Tema ──────────────────────────────────────────────────────────────
+const html = document.documentElement;
+const btnTema = document.getElementById("btn-tema");
+
+function aplicarTema(t){
+  html.setAttribute("data-theme", t);
+  btnTema.textContent = t === "dark" ? "☀️" : "🌙";
+  lsSet("mp_tema", t);
+}
+
+const temaGuardado = lsGet("mp_tema") || "light";
+aplicarTema(temaGuardado);
+
+btnTema.onclick = () => {
+  aplicarTema(html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+};
+
+// ── Inicializar ───────────────────────────────────────────────────────
 const hoy = new Date().toISOString().slice(0,10);
 document.getElementById("f-desde").value = hoy;
 document.getElementById("f-hasta").value = hoy;
@@ -169,7 +219,7 @@ document.title = nombre;
 document.getElementById("cfg-nombre").value = nombre;
 document.getElementById("cfg-token").value  = lsGet("mp_token");
 
-// ── Config panel ──────────────────────────────────────────────────────────
+// ── Config panel ──────────────────────────────────────────────────────
 document.getElementById("btn-config").onclick = () => {
   const p = document.getElementById("panel-config");
   p.style.display = p.style.display === "none" ? "block" : "none";
@@ -185,9 +235,8 @@ document.getElementById("btn-guardar").onclick = () => {
   toast("✅ Guardado");
 };
 
-// ── Buscar ────────────────────────────────────────────────────────────────
+// ── Buscar ────────────────────────────────────────────────────────────
 let datosActuales = [];
-
 document.getElementById("btn-buscar").onclick = buscar;
 
 async function buscar(){
@@ -225,7 +274,6 @@ function fmt(n){ return n == null ? "—" : "$ " + Math.round(n).toLocaleString(
 function renderTabla(rows, total){
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
-
   document.getElementById("st-registros").textContent = rows.length;
   document.getElementById("st-total").textContent = fmt(total);
 
@@ -240,7 +288,7 @@ function renderTabla(rows, total){
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${r.fecha}</td>
-      <td style="font-size:0.8rem;color:#718096">${r.id}</td>
+      <td style="font-size:0.8rem;color:var(--fg2)">${r.id}</td>
       <td class="monto">${fmt(r.monto)}</td>
       <td class="acum">${r.acumulado != null ? fmt(r.acumulado) : "—"}</td>
     `;
@@ -251,7 +299,7 @@ function renderTabla(rows, total){
   document.getElementById("tabla").style.display = "table";
 }
 
-// ── Excel ─────────────────────────────────────────────────────────────────
+// ── Excel ─────────────────────────────────────────────────────────────
 document.getElementById("btn-excel").onclick = exportarExcel;
 
 function exportarExcel(){
@@ -270,12 +318,7 @@ function exportarExcel(){
   toast("✅ Archivo descargado");
 }
 
-// ── Service Worker ────────────────────────────────────────────────────
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
-}
-
-// ── Toast ─────────────────────────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg){
   const el = document.getElementById("toast");
@@ -283,6 +326,11 @@ function toast(msg){
   el.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+}
+
+// ── Service Worker ────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 </script>
 </body>
